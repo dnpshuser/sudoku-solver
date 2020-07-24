@@ -1,7 +1,10 @@
+if(process.env.NODE_ENV != 'production') {
+  require('dotenv').config();
+}
 const express = require('express');
 const bodyParser = require('body-parser');
 const expressEjsLayouts = require('express-ejs-layouts');
-const port = 3000;
+const port = process.env.PORT || 3000;
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -79,13 +82,35 @@ app.post('/submit', async (req,res) => {
     return 0;
   }
 
+  function checkmat() {
+    for(var i = 1;i<10;i++) {
+      for(var j = 1;j<10;j++) {
+        if(mat[i][j] != 0) {
+          for(var ii = 1;ii<10;ii++) {
+            if(ii != i && mat[ii][j] == mat[i][j]){
+              return 0;
+            }
+            if(ii != j && mat[i][ii] == mat[i][j]){
+              return 0;
+            }
+          }
+        }
+      }
+    }
+    return 1;
+  }
+  var checkval = checkmat();
+  if(checkval == 0){
+    return res.render('noSolution');
+  }
   var ok = await rec(0);
   if(ok>0) {
-    console.log(mat);
+    // console.log(mat);
+    // console.log(done);
     res.render('solution', {mat : mat , done : done});
 
   } else {
-    console.log('No solution');
+    // console.log('No solution');
     res.render('noSolution');
   }  
 })
