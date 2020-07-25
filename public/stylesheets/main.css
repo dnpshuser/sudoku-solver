@@ -66,3 +66,12 @@ input::-webkit-inner-spin-button {
 .noSolution {
   color: rgb(0, 255, 85);
 }
+
+.more {
+  color : red;
+  margin : 20px auto; 
+}
+
+.heading {
+  color : aqua;
+}

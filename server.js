@@ -19,20 +19,24 @@ app.get('/', (req,res) => {
 app.post('/submit', async (req,res) => {
 
   var mat = new Array(10);
+  var matrix = new Array(10);
   var done = new Array(10);
   var vp = new Array();
  
   for(var i = 1;i<10;i++) {
     mat[i] = [];
+    matrix[i] = [];
     done[i] = [];
     for(var j = 1;j<10;j++) {
       var element = req.body['mat' + i + j];
       if(element) {
         mat[i][j] = parseInt(element);
+        matrix[i][j] = parseInt(element);
         done[i][j] = 1;
       } else {
         vp.push([i,j]);
         mat[i][j] = 0;
+        matrix[i][j] = 0;
         done[i][j] = 0;
       }
     }
@@ -82,6 +86,24 @@ app.post('/submit', async (req,res) => {
     return 0;
   }
 
+  function recursion(pos) {
+    if(pos==vp.length){
+      return 1;
+    }
+    for(var i=9;i>0;i--) {
+      if(check(vp[pos],i) > 0) {
+        var r=vp[pos][0];
+        var c=vp[pos][1];
+        mat[r][c]=i;
+        if(recursion(pos+1) > 0) {
+          return 1;
+        }
+        mat[r][c]=0;
+      }
+    }
+    return 0;
+  }
+
   function checkmat() {
     for(var i = 1;i<10;i++) {
       for(var j = 1;j<10;j++) {
@@ -103,15 +125,31 @@ app.post('/submit', async (req,res) => {
   if(checkval == 0){
     return res.render('noSolution');
   }
-  var ok = await rec(0);
+ 
+  var ok =  rec(0);
   if(ok>0) {
+    var result1 = mat;
+    mat = matrix;
     // console.log(mat);
-    // console.log(done);
-    res.render('solution', {mat : mat , done : done});
-
+    ok =  recursion(0);
+    // console.log(result1);
+    // console.log(mat);
+    var flag = 0;
+    for(var i = 1;i<10;i++) {
+      for(var j = 1;j<10;j++) {
+        if(result1[i][j] != mat[i][j]){
+          flag = 1;
+        }
+      }
+    }
+    if(flag == 0) {
+      return res.render('solution', {mat : mat , done : done});
+    } else {
+      return res.render('moreThanOne',{mat : mat, done : done, mat2 : result1});
+    }
   } else {
-    // console.log('No solution');
-    res.render('noSolution');
+    // console.log('here2');
+    return res.render('noSolution');
   }  
 })
 
